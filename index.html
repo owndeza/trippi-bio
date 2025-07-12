@@ -152,6 +152,12 @@
   backdrop-filter: blur(6px);
   animation: fadeIn 1s ease-in-out;
 }
+.dimmed-text {
+  color: rgba(255, 255, 255, 0.4); /* светло-серый, прозрачный */
+  user-select: none;               /* чтобы текст не выделялся */
+  font-weight: 600;
+  font-size: 0.9em;
+}
 
   </style>
 </head>
@@ -166,7 +172,7 @@
     <div class="info-line" style="--i:3">📍 Адресс: ул. Елькина, 49А, Пермь, Пермский край</div>
     <div class="info-line" style="--i:2">🕹️ Канал: <a href="https://t.me/+yn7LvvjLjGxjMmQx" target="_blank">кликабельно</a>
     <div class="info-line" style="--i:3">#️⃣ Клан: #крах</div>
-    <div class="footer">Last update: 2025</div>
+    <div class="footer">Last update: 2025 <p class="dimmed-text">#5</p></div>
   </div>
 
 <div class="text-box">
