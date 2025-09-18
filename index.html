@@ -1,186 +1,769 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>biography</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NullFace Clan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      font-family: 'Share Tech Mono', monospace;
-      background: radial-gradient(circle at center, #2a0000 20%, #000000 100%);
-      color: #ffffff;
-      overflow: hidden;
-      height: 100vh;
-      position: relative;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            cursor: none;
+        }
 
-    .photo-box {
-  width: 100px;
-  height: 100px;
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translate(-20%, 20%);
-  border: 2px solid #ff000055;
-  background: rgba(60, 0, 0, 0.5);
-  box-shadow: 0 0 20px #ff000055;
-  border-radius: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
-}
+        /* Кастомный курсор */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.1s ease;
+            mix-blend-mode: difference;
+        }
 
-.photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 12px;
-  box-shadow: 0 0 15px #ff000055;
-}
+        .cursor-trail {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: #ff0080;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0;
+        }
 
-    .glass {
-      backdrop-filter: blur(10px);
-      background: rgba(60, 0, 0, 0.6);
-      border: 1px solid #ff000055;
-      border-radius: 20px;
-      padding: 2rem;
-      width: 90%;
-      max-width: 700px;
-      margin: 2rem auto;
-      box-shadow: 0 0 40px #8b0000aa;
-      animation: fadeIn 2s ease-in-out;
-    }
+        /* Анимированный фон с частицами */
+        .particle-system {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      color: #ffffff;
-      text-shadow: 0 0 10px #ff0000;
-    }
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ffff;
+            animation: float 6s infinite linear;
+        }
 
-    .info-line {
-      margin: 10px 0;
-      margin-top: 20px;
-      font-size: 1.1rem;
-      opacity: 0;
-      animation: typeIn 0.5s ease forwards;
-    }
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
 
-    .info-line:nth-child(n+2) {
-      animation-delay: calc(0.3s * var(--i));
-    }
+        /* Геометрические фигуры */
+        .geometric-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
 
-    a {
-      color: #ffffff;
-      text-decoration: underline;
-    }
+        .hex {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            animation: rotate-hex 8s infinite linear;
+        }
 
-    a:hover {
-      color: #ff3333;
-    }
+        @keyframes rotate-hex {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
 
-    .footer {
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: #ff999988;
-    }
+        /* Главное меню - вертикальное, сбоку */
+        .side-nav {
+            position: fixed;
+            left: -200px;
+            top: 0;
+            width: 200px;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(0, 255, 255, 0.3);
+            z-index: 1000;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            padding: 2rem 0;
+        }
 
-    .scanlines::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(255, 0, 0, 0.05),
-        rgba(255, 0, 0, 0.05) 1px,
-        transparent 1px,
-        transparent 2px
-      );
-      pointer-events: none;
-      z-index: 1;
-      animation: flicker 3s infinite;
-    }
+        .side-nav.open {
+            left: 0;
+        }
 
-    @keyframes flicker {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 0.4; }
-    }
+        .nav-toggle {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1001;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid #00ffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-    @keyframes fadeIn {
-      0% { opacity: 0; transform: translateY(-20px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
+        .nav-toggle:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
 
-    @keyframes typeIn {
-      from { opacity: 0; transform: translateX(-20px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
+        .hamburger {
+            width: 20px;
+            height: 2px;
+            background: #00ffff;
+            position: relative;
+            transition: all 0.3s ease;
+        }
 
-    .cursor::after {
-      content: '_';
-      animation: blink 1s step-start infinite;
-      color: #ff0000;
-    }
+        .hamburger::before,
+        .hamburger::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 2px;
+            background: #00ffff;
+            transition: all 0.3s ease;
+        }
 
-    @keyframes blink {
-      50% { opacity: 0; }
-    }
+        .hamburger::before {
+            top: -6px;
+        }
 
-.text-box {
-  width: 90%;
-  max-width: 700px;
-  margin: 1rem auto;
-  padding: 1rem 1.5rem;
-  background: rgba(60, 0, 0, 0.5);
-  border: 1px solid #ff000055;
-  border-radius: 15px;
-  box-shadow: 0 0 25px #8b000088;
-  color: #fff;
-  font-size: 1rem;
-  text-align: center;
-  backdrop-filter: blur(6px);
-  animation: fadeIn 1s ease-in-out;
-}
-.dimmed-text {
-  color: rgba(255, 255, 255, 0.4); /* светло-серый, прозрачный */
-  user-select: none;               /* чтобы текст не выделялся */
-  font-weight: 600;
-  font-size: 0.9em;
-}
+        .hamburger::after {
+            top: 6px;
+        }
 
-  </style>
+        .nav-toggle.active .hamburger {
+            background: transparent;
+        }
+
+        .nav-toggle.active .hamburger::before {
+            transform: rotate(45deg);
+            top: 0;
+        }
+
+        .nav-toggle.active .hamburger::after {
+            transform: rotate(-45deg);
+            top: 0;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 2rem 1rem;
+        }
+
+        .nav-links li {
+            margin: 2rem 0;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.5s ease;
+        }
+
+        .side-nav.open .nav-links li {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .nav-links li:nth-child(1) { transition-delay: 0.1s; }
+        .nav-links li:nth-child(2) { transition-delay: 0.2s; }
+        .nav-links li:nth-child(3) { transition-delay: 0.3s; }
+        .nav-links li:nth-child(4) { transition-delay: 0.4s; }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        /* Главная секция - диагональный дизайн */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(10, 10, 30, 0.8));
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            transform: perspective(1000px) rotateY(0deg);
+            animation: float-hero 6s ease-in-out infinite;
+        }
+
+        @keyframes float-hero {
+            0%, 100% { transform: perspective(1000px) rotateY(0deg) translateY(0px); }
+            50% { transform: perspective(1000px) rotateY(2deg) translateY(-20px); }
+        }
+
+        .glitch-text {
+            font-size: 5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            position: relative;
+            color: #ffffff;
+            animation: glitch 2s infinite;
+        }
+
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch-text::before {
+            animation: glitch-1 2s infinite;
+            color: #00ffff;
+            z-index: -1;
+        }
+
+        .glitch-text::after {
+            animation: glitch-2 2s infinite;
+            color: #ff0080;
+            z-index: -2;
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+
+        @keyframes glitch-1 {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(2px, -2px); }
+            40% { transform: translate(-2px, 2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(-2px, -2px); }
+        }
+
+        @keyframes glitch-2 {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(2px, -2px); }
+            60% { transform: translate(-2px, -2px); }
+            80% { transform: translate(2px, 2px); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            opacity: 0.8;
+            margin-bottom: 3rem;
+            animation: typewriter 4s steps(40) 1s 1 normal both;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 2px solid #00ffff;
+        }
+
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        /* Необычные кнопки */
+        .neo-button {
+            position: relative;
+            padding: 1rem 2rem;
+            background: transparent;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+        }
+
+        .neo-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .neo-button:hover::before {
+            left: 100%;
+        }
+
+        .neo-button:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Секции с необычной геометрией */
+        .section {
+            padding: 5rem 2rem;
+            position: relative;
+        }
+
+        .diagonal-section {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 0, 40, 0.9));
+            clip-path: polygon(0 10%, 100% 0%, 100% 90%, 0% 100%);
+            margin: -5rem 0;
+            padding: 8rem 2rem;
+        }
+
+        .content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            background: linear-gradient(45deg, #00ffff, #ff0080, #00ff80);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Треугольные карточки */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            perspective: 1000px;
+        }
+
+        .triangle-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 3rem 2rem;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            transition: all 0.5s ease;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .triangle-card:hover {
+            transform: rotateY(10deg) translateY(-10px);
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 255, 255, 0.2);
+        }
+
+        .triangle-card h3 {
+            color: #00ffff;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .triangle-card p {
+            opacity: 0.8;
+            line-height: 1.6;
+            text-align: center;
+            padding-top: 1rem;
+        }
+
+        /* Статистика в виде кругов */
+        .stats-circle {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 5rem 0;
+        }
+
+        .circle-stat {
+            width: 200px;
+            height: 200px;
+            border: 3px solid #00ffff;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .circle-stat::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #00ffff, #ff0080, #00ff80, #00ffff);
+            animation: rotate 4s linear infinite;
+            z-index: -1;
+        }
+
+        .circle-stat:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Футер с волновым эффектом */
+        footer {
+            background: #000;
+            position: relative;
+            padding: 4rem 2rem 2rem;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath d='M0,60 C300,120 600,0 900,60 C1050,90 1150,30 1200,60 L1200,120 L0,120 Z' fill='%23000'/%3E%3C/svg%3E");
+            background-size: cover;
+            animation: wave 6s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-50px); }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .glitch-text {
+                font-size: 3rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .triangle-card {
+                clip-path: none;
+                border-radius: 10px;
+            }
+            
+            .circle-stat {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .stats-circle {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .glitch-text {
+                font-size: 2.5rem;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-<body class="scanlines">
-  <div class="glass">
-    <div class="photo-box">
-      <img src="sq.jpg" alt="Фото" class="photo" width="100" height="100" />
+<body>
+    <div class="cursor"></div>
+    
+    <div class="particle-system" id="particles"></div>
+    
+    <div class="geometric-bg" id="geometricBg"></div>
+
+    <div class="nav-toggle" id="navToggle">
+        <span class="hamburger"></span>
     </div>
 
-    <h1 class="cursor">Trippl</h1>
-    <div class="info-line" style="--i:1">💬 Связь: <a href="https://t.me/Eisisndnend" target="_blank">@Eisisndnend</a>
-    <div class="info-line" style="--i:3">📍 Адресс: ул. Елькина, 49А, Пермь, Пермский край</div>
-    <div class="info-line" style="--i:2">🕹️ Канал: <a href="https://t.me/+yn7LvvjLjGxjMmQx" target="_blank">кликабельно</a>
-    <div class="info-line" style="--i:3">#️⃣ Клан: #крах</div>
-    <div class="footer">Last update: 2025 <p class="dimmed-text">#5</p></div>
-  </div>
+    <nav class="side-nav" id="sideNav">
+        <ul class="nav-links">
+            <li><a href="#home">◆ Главная</a></li>
+            <li><a href="#about">◇ О клане</a></li>
+            <li><a href="#members">◆ Участники</a></li>
+            <li><a href="#contact">◇ Контакты</a></li>
+        </ul>
+    </nav>
 
-<div class="text-box">
-  ⚠️ <strong>ВНИМАНИЕ:</strong> Этот пользователь является крайне опасным.  
-  Мы настоятельно не рекомендуем вступать с ним в контакт.
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1 class="glitch-text" data-text="NULLFACE">NULLFACE</h1>
+            <p class="hero-subtitle">DIGITAL WARRIORS</p>
+            <a href="#about" class="neo-button">ИНФОРМАЦИЯ</a>
+        </div>
+    </section>
 
-  🚫 Любое взаимодействие осуществляется на ваш страх и риск.
-</div>
+    <section id="about" class="section diagonal-section">
+        <div class="content-wrapper">
+            <h2 class="section-title">НАША МИССИЯ</h2>
+            <div class="cards-container">
+                <div class="triangle-card">
+                    <h3>⟪ ТЕХНОЛОГИИ ⟫</h3>
+                    <p>Мы исследуем границы цифрового мира, создавая инновационные решения и защищая киберпространство от угроз.</p>
+                </div>
+                <div class="triangle-card">
+                    <h3>⟪ ЕДИНСТВО ⟫</h3>
+                    <p>Сильная команда профессионалов, объединенных общими целями и стремлением к совершенству.</p>
+                </div>
+                <div class="triangle-card">
+                    <h3>⟪ БУДУЩЕЕ ⟫</h3>
+                    <p>Мы формируем цифровое будущее, внедряя передовые технологии и методы кибербезопасности.</p>
+                </div>
+            </div>
 
+            <div class="stats-circle">
+                <div class="circle-stat">
+                    <div class="stat-number">30+</div>
+                    <div class="stat-label">АКТИВНЫХ УЧАСТНИКОВ</div>
+                </div>
+                <div class="circle-stat">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">ВОЗМОЖНОСТЕЙ</div>
+                </div>
+                <div class="circle-stat">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">НАДЕЖНОСТЬ</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="content-wrapper" style="text-align: center;">
+            <h2 class="section-title">CONNECTION ESTABLISHED</h2>
+            <div style="display: flex; justify-content: center; gap: 3rem; margin: 3rem 0; flex-wrap: wrap;">
+                <div href="https://t.me/eliseymonarkh" class="neo-button" style="padding: 1rem;">◆ OWNER</div>
+                <div href="https://t.me/FuckAristotle" class="neo-button" style="padding: 1rem;">◇ ЗАПРОС В КЛАН</div>
+            </div>
+            <p style="opacity: 0.6; margin-top: 3rem;">© 2024 NULLFACE // DIGITAL LEGENDS</p>
+        </div>
+    </footer>
+
+    <script>
+        // Кастомный курсор
+        const cursor = document.querySelector('.cursor');
+        const trails = [];
+        
+        // Создаем следы курсора
+        for(let i = 0; i < 20; i++) {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            document.body.appendChild(trail);
+            trails.push(trail);
+        }
+        
+        let mouseX = 0, mouseY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            cursor.style.left = mouseX - 10 + 'px';
+            cursor.style.top = mouseY - 10 + 'px';
+            
+            // Анимация следов
+            trails.forEach((trail, index) => {
+                setTimeout(() => {
+                    trail.style.left = mouseX - 3 + 'px';
+                    trail.style.top = mouseY - 3 + 'px';
+                    trail.style.opacity = 1 - (index * 0.05);
+                }, index * 10);
+            });
+        });
+
+        // Система частиц
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+            document.getElementById('particles').appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 6000);
+        }
+        
+        setInterval(createParticle, 200);
+
+        // Создание геометрических фигур
+        function createHex() {
+            const hex = document.createElement('div');
+            hex.className = 'hex';
+            hex.style.left = Math.random() * 100 + 'vw';
+            hex.style.top = Math.random() * 100 + 'vh';
+            hex.style.animationDelay = Math.random() * 8 + 's';
+            document.getElementById('geometricBg').appendChild(hex);
+            
+            setTimeout(() => {
+                hex.remove();
+            }, 8000);
+        }
+        
+        setInterval(createHex, 3000);
+
+        // Навигация
+        const navToggle = document.getElementById('navToggle');
+        const sideNav = document.getElementById('sideNav');
+        
+        navToggle.addEventListener('click', () => {
+            navToggle.classList.toggle('active');
+            sideNav.classList.toggle('open');
+        });
+        
+        // Закрытие навигации при клике на ссылку
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navToggle.classList.remove('active');
+                sideNav.classList.remove('open');
+            });
+        });
+
+        // Плавная прокрутка
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if(target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Эффект появления карточек
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0) rotateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Применяем наблюдатель к карточкам
+        document.querySelectorAll('.triangle-card, .circle-stat').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(50px) rotateY(-10deg)';
+            card.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            observer.observe(card);
+        });
+
+        // Анимация цифр в статистике
+        function animateNumber(element, target) {
+            let current = 0;
+            const increment = target / 100;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, 20);
+        }
+
+        // Запуск анимации цифр при появлении
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const number = entry.target.querySelector('.stat-number');
+                    const value = parseInt(number.textContent);
+                    if (!isNaN(value)) {
+                        animateNumber(number, value);
+                    }
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        });
+
+        document.querySelectorAll('.circle-stat').forEach(stat => {
+            statsObserver.observe(stat);
+        });
+
+        // Параллакс эффект для hero секции
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero-content');
+            if(hero) {
+                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+    </script>
 </body>
 </html>
