@@ -1,769 +1,160 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NullFace Clan</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0a0a;
-            color: #ffffff;
-            overflow-x: hidden;
-            cursor: none;
-        }
-
-        /* Кастомный курсор */
-        .cursor {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #00ffff;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transition: all 0.1s ease;
-            mix-blend-mode: difference;
-        }
-
-        .cursor-trail {
-            position: fixed;
-            width: 6px;
-            height: 6px;
-            background: #ff0080;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9998;
-            opacity: 0;
-        }
-
-        /* Анимированный фон с частицами */
-        .particle-system {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #00ffff;
-            animation: float 6s infinite linear;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-        }
-
-        /* Геометрические фигуры */
-        .geometric-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-        }
-
-        .hex {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            animation: rotate-hex 8s infinite linear;
-        }
-
-        @keyframes rotate-hex {
-            0% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.2); }
-            100% { transform: rotate(360deg) scale(1); }
-        }
-
-        /* Главное меню - вертикальное, сбоку */
-        .side-nav {
-            position: fixed;
-            left: -200px;
-            top: 0;
-            width: 200px;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(0, 255, 255, 0.3);
-            z-index: 1000;
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            padding: 2rem 0;
-        }
-
-        .side-nav.open {
-            left: 0;
-        }
-
-        .nav-toggle {
-            position: fixed;
-            top: 2rem;
-            left: 2rem;
-            z-index: 1001;
-            width: 40px;
-            height: 40px;
-            background: rgba(0, 255, 255, 0.1);
-            border: 1px solid #00ffff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .nav-toggle:hover {
-            background: rgba(0, 255, 255, 0.2);
-            transform: scale(1.1);
-        }
-
-        .hamburger {
-            width: 20px;
-            height: 2px;
-            background: #00ffff;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .hamburger::before,
-        .hamburger::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 2px;
-            background: #00ffff;
-            transition: all 0.3s ease;
-        }
-
-        .hamburger::before {
-            top: -6px;
-        }
-
-        .hamburger::after {
-            top: 6px;
-        }
-
-        .nav-toggle.active .hamburger {
-            background: transparent;
-        }
-
-        .nav-toggle.active .hamburger::before {
-            transform: rotate(45deg);
-            top: 0;
-        }
-
-        .nav-toggle.active .hamburger::after {
-            transform: rotate(-45deg);
-            top: 0;
-        }
-
-        .nav-links {
-            list-style: none;
-            padding: 2rem 1rem;
-        }
-
-        .nav-links li {
-            margin: 2rem 0;
-            opacity: 0;
-            transform: translateX(-50px);
-            transition: all 0.5s ease;
-        }
-
-        .side-nav.open .nav-links li {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .nav-links li:nth-child(1) { transition-delay: 0.1s; }
-        .nav-links li:nth-child(2) { transition-delay: 0.2s; }
-        .nav-links li:nth-child(3) { transition-delay: 0.3s; }
-        .nav-links li:nth-child(4) { transition-delay: 0.4s; }
-
-        .nav-links a {
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 1.1rem;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: #00ffff;
-            text-shadow: 0 0 10px #00ffff;
-        }
-
-        /* Главная секция - диагональный дизайн */
-        .hero {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(10, 10, 30, 0.8));
-        }
-
-        .hero-content {
-            text-align: center;
-            z-index: 10;
-            transform: perspective(1000px) rotateY(0deg);
-            animation: float-hero 6s ease-in-out infinite;
-        }
-
-        @keyframes float-hero {
-            0%, 100% { transform: perspective(1000px) rotateY(0deg) translateY(0px); }
-            50% { transform: perspective(1000px) rotateY(2deg) translateY(-20px); }
-        }
-
-        .glitch-text {
-            font-size: 5rem;
-            font-weight: 900;
-            margin-bottom: 1rem;
-            position: relative;
-            color: #ffffff;
-            animation: glitch 2s infinite;
-        }
-
-        .glitch-text::before,
-        .glitch-text::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .glitch-text::before {
-            animation: glitch-1 2s infinite;
-            color: #00ffff;
-            z-index: -1;
-        }
-
-        .glitch-text::after {
-            animation: glitch-2 2s infinite;
-            color: #ff0080;
-            z-index: -2;
-        }
-
-        @keyframes glitch {
-            0%, 100% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-        }
-
-        @keyframes glitch-1 {
-            0%, 100% { transform: translate(0); }
-            20% { transform: translate(2px, -2px); }
-            40% { transform: translate(-2px, 2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(-2px, -2px); }
-        }
-
-        @keyframes glitch-2 {
-            0%, 100% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(2px, -2px); }
-            60% { transform: translate(-2px, -2px); }
-            80% { transform: translate(2px, 2px); }
-        }
-
-        .hero-subtitle {
-            font-size: 1.5rem;
-            opacity: 0.8;
-            margin-bottom: 3rem;
-            animation: typewriter 4s steps(40) 1s 1 normal both;
-            white-space: nowrap;
-            overflow: hidden;
-            border-right: 2px solid #00ffff;
-        }
-
-        @keyframes typewriter {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-
-        /* Необычные кнопки */
-        .neo-button {
-            position: relative;
-            padding: 1rem 2rem;
-            background: transparent;
-            border: 2px solid #00ffff;
-            color: #00ffff;
-            text-decoration: none;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
-        }
-
-        .neo-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .neo-button:hover::before {
-            left: 100%;
-        }
-
-        .neo-button:hover {
-            background: rgba(0, 255, 255, 0.1);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-            transform: translateY(-2px);
-        }
-
-        /* Секции с необычной геометрией */
-        .section {
-            padding: 5rem 2rem;
-            position: relative;
-        }
-
-        .diagonal-section {
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 0, 40, 0.9));
-            clip-path: polygon(0 10%, 100% 0%, 100% 90%, 0% 100%);
-            margin: -5rem 0;
-            padding: 8rem 2rem;
-        }
-
-        .content-wrapper {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            font-size: 3rem;
-            text-align: center;
-            margin-bottom: 4rem;
-            background: linear-gradient(45deg, #00ffff, #ff0080, #00ff80);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradient-shift 3s ease infinite;
-        }
-
-        @keyframes gradient-shift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        /* Треугольные карточки */
-        .cards-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 3rem;
-            perspective: 1000px;
-        }
-
-        .triangle-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            padding: 3rem 2rem;
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            transition: all 0.5s ease;
-            transform-style: preserve-3d;
-            cursor: pointer;
-        }
-
-        .triangle-card:hover {
-            transform: rotateY(10deg) translateY(-10px);
-            background: rgba(0, 255, 255, 0.1);
-            box-shadow: 0 20px 40px rgba(0, 255, 255, 0.2);
-        }
-
-        .triangle-card h3 {
-            color: #00ffff;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        .triangle-card p {
-            opacity: 0.8;
-            line-height: 1.6;
-            text-align: center;
-            padding-top: 1rem;
-        }
-
-        /* Статистика в виде кругов */
-        .stats-circle {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            margin: 5rem 0;
-        }
-
-        .circle-stat {
-            width: 200px;
-            height: 200px;
-            border: 3px solid #00ffff;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            margin: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .circle-stat::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: conic-gradient(from 0deg, #00ffff, #ff0080, #00ff80, #00ffff);
-            animation: rotate 4s linear infinite;
-            z-index: -1;
-        }
-
-        .circle-stat:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #ffffff;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            text-align: center;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Футер с волновым эффектом */
-        footer {
-            background: #000;
-            position: relative;
-            padding: 4rem 2rem 2rem;
-            overflow: hidden;
-        }
-
-        footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath d='M0,60 C300,120 600,0 900,60 C1050,90 1150,30 1200,60 L1200,120 L0,120 Z' fill='%23000'/%3E%3C/svg%3E");
-            background-size: cover;
-            animation: wave 6s ease-in-out infinite;
-        }
-
-        @keyframes wave {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(-50px); }
-        }
-
-        /* Адаптивность */
-        @media (max-width: 768px) {
-            .glitch-text {
-                font-size: 3rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.2rem;
-            }
-            
-            .section-title {
-                font-size: 2rem;
-            }
-            
-            .triangle-card {
-                clip-path: none;
-                border-radius: 10px;
-            }
-            
-            .circle-stat {
-                width: 150px;
-                height: 150px;
-            }
-            
-            .stats-circle {
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .glitch-text {
-                font-size: 2.5rem;
-            }
-            
-            .cards-container {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>❤️</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel: rgba(255,255,255,0.06);
+    }
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, sans-serif;background:linear-gradient(180deg,var(--bg),#071022);color:#fff}
+    .stage{position:relative;overflow:hidden;height:100vh;width:100vw;display:flex;align-items:center;justify-content:center}
+
+    .controls{
+      position:fixed;left:16px;top:16px;background:var(--panel);backdrop-filter:blur(6px);padding:10px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,.6);z-index:9999
+    }
+    .controls label{display:flex;gap:8px;align-items:center;font-size:14px}
+    .controls input[type=range]{width:160px}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.12);padding:6px 10px;border-radius:8px;color:#fff;cursor:pointer}
+
+    .heart{
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(1);
+      font-size:28px;pointer-events:none;will-change:transform,opacity;user-select:none
+    }
+
+    @keyframes rise {
+      0%{transform:translateY(0) scale(0.6) rotate(0deg);opacity:1}
+      10%{transform:translateY(-6vh) scale(1.05) rotate(-10deg)}
+      100%{transform:translateY(-120vh) scale(1.2) rotate(30deg);opacity:0}
+    }
+
+    /* small hint in center */
+    .hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);font-size:13px;color:rgba(255,255,255,.7)}
+
+  </style>
 </head>
 <body>
-    <div class="cursor"></div>
-    
-    <div class="particle-system" id="particles"></div>
-    
-    <div class="geometric-bg" id="geometricBg"></div>
-
-    <div class="nav-toggle" id="navToggle">
-        <span class="hamburger"></span>
+  <div class="controls" aria-hidden="false">
+    <div style="margin-bottom:8px;font-weight:600">машина сердечек❤</div>
+    <label><input id="autospawn" type="checkbox" checked> что бы само появлялось</label>
+    <label style="margin-top:6px">Скорость <input id="rate" type="range" min="50" max="1200" value="300"></label>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button id="clearBtn" class="btn">очистить сердечки</button>
+      <button id="burstBtn" class="btn">добавить много сердечек</button>
     </div>
+    <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:6px">нажми в любом месте и появится сердечко ❤</div>
+  </div>
 
-    <nav class="side-nav" id="sideNav">
-        <ul class="nav-links">
-            <li><a href="#home">◆ Главная</a></li>
-            <li><a href="#about">◇ О клане</a></li>
-            <li><a href="#members">◆ Участники</a></li>
-            <li><a href="#contact">◇ Контакты</a></li>
-        </ul>
-    </nav>
+  <div class="stage" id="stage"></div>
+  <div class="hint"></div>
 
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <h1 class="glitch-text" data-text="NULLFACE">NULLFACE</h1>
-            <p class="hero-subtitle">DIGITAL WARRIORS</p>
-            <a href="#about" class="neo-button">ИНФОРМАЦИЯ</a>
-        </div>
-    </section>
+  <script>
+    const stage = document.getElementById('stage');
+    const autospawn = document.getElementById('autospawn');
+    const rateInput = document.getElementById('rate');
+    const clearBtn = document.getElementById('clearBtn');
+    const burstBtn = document.getElementById('burstBtn');
 
-    <section id="about" class="section diagonal-section">
-        <div class="content-wrapper">
-            <h2 class="section-title">НАША МИССИЯ</h2>
-            <div class="cards-container">
-                <div class="triangle-card">
-                    <h3>⟪ ТЕХНОЛОГИИ ⟫</h3>
-                    <p>Мы исследуем границы цифрового мира, создавая инновационные решения и защищая киберпространство от угроз.</p>
-                </div>
-                <div class="triangle-card">
-                    <h3>⟪ ЕДИНСТВО ⟫</h3>
-                    <p>Сильная команда профессионалов, объединенных общими целями и стремлением к совершенству.</p>
-                </div>
-                <div class="triangle-card">
-                    <h3>⟪ БУДУЩЕЕ ⟫</h3>
-                    <p>Мы формируем цифровое будущее, внедряя передовые технологии и методы кибербезопасности.</p>
-                </div>
-            </div>
+    const palette = ['#ff6b6b','#ff8fab','#ffb86b','#ff6fd1','#ffd166','#ff4d6d','#e75480'];
 
-            <div class="stats-circle">
-                <div class="circle-stat">
-                    <div class="stat-number">30+</div>
-                    <div class="stat-label">АКТИВНЫХ УЧАСТНИКОВ</div>
-                </div>
-                <div class="circle-stat">
-                    <div class="stat-number">∞</div>
-                    <div class="stat-label">ВОЗМОЖНОСТЕЙ</div>
-                </div>
-                <div class="circle-stat">
-                    <div class="stat-number">100%</div>
-                    <div class="stat-label">НАДЕЖНОСТЬ</div>
-                </div>
-            </div>
-        </div>
-    </section>
+    function rand(min,max){return Math.random()*(max-min)+min}
 
-    <footer id="contact">
-        <div class="content-wrapper" style="text-align: center;">
-            <h2 class="section-title">CONNECTION ESTABLISHED</h2>
-            <div style="display: flex; justify-content: center; gap: 3rem; margin: 3rem 0; flex-wrap: wrap;">
-                <div href="https://t.me/eliseymonarkh" class="neo-button" style="padding: 1rem;">◆ OWNER</div>
-                <div href="https://t.me/FuckAristotle" class="neo-button" style="padding: 1rem;">◇ ЗАПРОС В КЛАН</div>
-            </div>
-            <p style="opacity: 0.6; margin-top: 3rem;">© 2024 NULLFACE // DIGITAL LEGENDS</p>
-        </div>
-    </footer>
+    function spawnHeart(x=null,y=null){
+      const el = document.createElement('div');
+      el.className = 'heart';
+      el.textContent = '❤';
 
-    <script>
-        // Кастомный курсор
-        const cursor = document.querySelector('.cursor');
-        const trails = [];
-        
-        // Создаем следы курсора
-        for(let i = 0; i < 20; i++) {
-            const trail = document.createElement('div');
-            trail.className = 'cursor-trail';
-            document.body.appendChild(trail);
-            trails.push(trail);
-        }
-        
-        let mouseX = 0, mouseY = 0;
-        
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            
-            cursor.style.left = mouseX - 10 + 'px';
-            cursor.style.top = mouseY - 10 + 'px';
-            
-            // Анимация следов
-            trails.forEach((trail, index) => {
-                setTimeout(() => {
-                    trail.style.left = mouseX - 3 + 'px';
-                    trail.style.top = mouseY - 3 + 'px';
-                    trail.style.opacity = 1 - (index * 0.05);
-                }, index * 10);
-            });
-        });
+      // randomize start pos
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
 
-        // Система частиц
-        function createParticle() {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = Math.random() * 100 + 'vw';
-            particle.style.animationDelay = Math.random() * 6 + 's';
-            particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
-            document.getElementById('particles').appendChild(particle);
-            
-            setTimeout(() => {
-                particle.remove();
-            }, 6000);
-        }
-        
-        setInterval(createParticle, 200);
+      const left = x !== null ? x : rand(5,95);
+      const top = y !== null ? y : rand(60,90);
 
-        // Создание геометрических фигур
-        function createHex() {
-            const hex = document.createElement('div');
-            hex.className = 'hex';
-            hex.style.left = Math.random() * 100 + 'vw';
-            hex.style.top = Math.random() * 100 + 'vh';
-            hex.style.animationDelay = Math.random() * 8 + 's';
-            document.getElementById('geometricBg').appendChild(hex);
-            
-            setTimeout(() => {
-                hex.remove();
-            }, 8000);
-        }
-        
-        setInterval(createHex, 3000);
+      el.style.left = (typeof left === 'number' && left<=100 ? left + '%' : left + 'px');
+      el.style.top = (typeof top === 'number' && top<=100 ? top + '%' : top + 'px');
 
-        // Навигация
-        const navToggle = document.getElementById('navToggle');
-        const sideNav = document.getElementById('sideNav');
-        
-        navToggle.addEventListener('click', () => {
-            navToggle.classList.toggle('active');
-            sideNav.classList.toggle('open');
-        });
-        
-        // Закрытие навигации при клике на ссылку
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                navToggle.classList.remove('active');
-                sideNav.classList.remove('open');
-            });
-        });
+      // size, color and animation
+      const size = Math.floor(rand(18,60));
+      el.style.fontSize = size + 'px';
+      el.style.color = palette[Math.floor(rand(0,palette.length))];
 
-        // Плавная прокрутка
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if(target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
+      const duration = rand(3000,7000);
+      el.style.animation = `rise ${duration}ms linear forwards`;
+      el.style.zIndex = 1000 + Math.floor(rand(0,1000));
 
-        // Эффект появления карточек
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
+      // horizontal drift using transform translateX
+      const drift = rand(-30,30);
+      el.style.transition = `transform ${duration}ms linear`;
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0) rotateY(0)';
-                }
-            });
-        }, observerOptions);
+      stage.appendChild(el);
 
-        // Применяем наблюдатель к карточкам
-        document.querySelectorAll('.triangle-card, .circle-stat').forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(50px) rotateY(-10deg)';
-            card.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            observer.observe(card);
-        });
+      // add slight horizontal drift via timeout to let element render
+      requestAnimationFrame(()=>{
+        el.style.transform = `translate(${drift}vw, -120vh) scale(${rand(0.9,1.2)}) rotate(${rand(-30,30)}deg)`;
+        el.style.opacity = '0';
+      });
 
-        // Анимация цифр в статистике
-        function animateNumber(element, target) {
-            let current = 0;
-            const increment = target / 100;
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= target) {
-                    element.textContent = target;
-                    clearInterval(timer);
-                } else {
-                    element.textContent = Math.floor(current);
-                }
-            }, 20);
-        }
+      // remove when animation done
+      setTimeout(()=>{ el.remove(); }, duration + 100);
+    }
 
-        // Запуск анимации цифр при появлении
-        const statsObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const number = entry.target.querySelector('.stat-number');
-                    const value = parseInt(number.textContent);
-                    if (!isNaN(value)) {
-                        animateNumber(number, value);
-                    }
-                    statsObserver.unobserve(entry.target);
-                }
-            });
-        });
+    // auto spawn
+    let interval = null;
+    function startAuto(){
+      stopAuto();
+      const ms = parseInt(rateInput.value);
+      interval = setInterval(()=>{
+        // spawn near bottom with random x
+        spawnHeart(rand(5,95), rand(80,98));
+      }, ms);
+    }
+    function stopAuto(){ if(interval) clearInterval(interval); interval = null }
 
-        document.querySelectorAll('.circle-stat').forEach(stat => {
-            statsObserver.observe(stat);
-        });
+    autospawn.addEventListener('change', ()=>{
+      if(autospawn.checked) startAuto(); else stopAuto();
+    });
 
-        // Параллакс эффект для hero секции
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const hero = document.querySelector('.hero-content');
-            if(hero) {
-                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
-            }
-        });
-    </script>
+    rateInput.addEventListener('input', ()=>{
+      if(autospawn.checked) startAuto();
+    });
+
+    // click to spawn at pointer
+    window.addEventListener('pointerdown', (e)=>{
+      // convert to percent positions for CSS
+      const xPct = (e.clientX / window.innerWidth) * 100;
+      const yPct = (e.clientY / window.innerHeight) * 100;
+      spawnHeart(xPct, yPct);
+    });
+
+    clearBtn.addEventListener('click', ()=>{
+      document.querySelectorAll('.heart').forEach(h=>h.remove());
+    });
+
+    burstBtn.addEventListener('click', ()=>{
+      for(let i=0;i<30;i++){
+        setTimeout(()=>spawnHeart(rand(10,90), rand(70,98)), i*25);
+      }
+    });
+
+    // start initially if checked
+    if(autospawn.checked) startAuto();
+
+    // accessibility: stop animations if user prefers reduced motion
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if(mq.matches){ stopAuto(); autospawn.checked = false }
+
+    // responsive: remove leftover hearts when resizing (avoid weird positions)
+    let resizeTimer;
+    window.addEventListener('resize', ()=>{
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(()=>{
+        document.querySelectorAll('.heart').forEach(h=>h.remove());
+      },250);
+    });
+
+  </script>
 </body>
 </html>
